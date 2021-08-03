@@ -297,3 +297,6 @@ Pigsty (2018-2021)
 作者：[冯若航](https://vonng.com) (rh@vonng.com)
 
 协议：[Apache License 2.0 ](https://raw.githubusercontent.com/Vonng/pigsty/master/LICENSE)
+
+[浙ICP备15016890号](https://beian.miit.gov.cn/)
+

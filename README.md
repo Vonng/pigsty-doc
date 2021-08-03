@@ -271,3 +271,5 @@ make demo      # install pigsty on 'meta' as above      (demo4  for 4-node demo)
 
 Author：[Vonng](https://vonng.com/en) (rh@vonng.com)
 
+[浙ICP备15016890号](https://beian.miit.gov.cn/)
+
