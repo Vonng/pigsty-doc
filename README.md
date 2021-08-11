@@ -4,8 +4,10 @@
 
 **Battery-Included Open-Source PostgreSQL Distribution**
 
-?> Use `make doc` to explore this document in browser. Check [Online Docs](http://doc.pigsty.cc/) / [中文文档](http://doc.pigsty.cc/#/zh-cn/)
-
+> [EN DOCS](https://pigsty.cc/#/?id=pigsty) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Public Demo](https://demo.pigsty.cc) | [Github Repo](https://github.com/Vonng/pigsty)
+>
+> Use `make doc` to view this doc in browser
+>
 > Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "PostgreSQL In Graphic STYle"
 
 
@@ -271,5 +273,4 @@ make demo      # install pigsty on 'meta' as above      (demo4  for 4-node demo)
 
 Author：[Vonng](https://vonng.com/en) (rh@vonng.com)
 
-[浙ICP备15016890号](https://beian.miit.gov.cn/)
-
+-[浙ICP备15016890号-2](https://beian.miit.gov.cn/)
