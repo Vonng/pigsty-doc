@@ -1,9 +1,10 @@
+- [Author](https://vonng.com/en/)
 - [Demo](http://demo.pigsty.cc)
 
 - Version
-  - [v1.0](/)
-  - [v0.9](http://v0.pigsty.cc))
+  - [v1.x](/)
+  - [v0.9](http://v0.pigsty.cc)
 
-- Translations
-  - [:uk: English](/)
-  - [:cn: 中文](/zh-cn/)
+- Language
+  - [English](/)
+  - [简体中文](/zh-cn/)

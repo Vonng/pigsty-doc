@@ -1,74 +1,66 @@
-- Getting Started
-  - [Install](zh-cn/s-install.md)
-  - [Sandbox](zh-cn/s-sandbox.md)
-  - [Interface](zh-cn/s-interface.md)
-  - [FAQ](zh-cn/s-faq.md)
+- [Overview](README.md)
+  - [Introduction](s-intro.md)
+  - [Installation](s-install.md)
+  - [Features](s-feature.md)  
+  - [FAQ](s-faq.md)
 
-- Concept
-  - Architecture
-  - Entities
-  - Service
-  - Database
-  - User
-  - Privilege
-  - Authentication
-  - Access
+- [Concept](c-concept.md)
+  - [Architecture](c-arch.md)
+  - [Concept: INFRA](c-infra.md)
+  - [Concept: NODES](c-nodes.md)
+  - [Concept: PGSQL](c-pgsql.md)
+  - [Concept: REDIS](c-redis.md)
+  - [PGSQL Service/Access](c-service.md)
+  - [PGSQL Database/User](c-pgdbuser.md)
+  - [PGSQL Auth/Privilege](c-privilege.md)
 
-- Tutorial
-  - New Environment
-  - Basic Operation
-  - Data Analysis IDE
-  - New PGSQL Cluster
-  - Play with Database
-  - New Biz User
-  - New Biz Database
-  - New Biz Database
-  - [Setup Logging](t-logging.md)
-  - [Upgrade Grafana DB](t-grafana-upgrade.md)
-  - [Use CMDB Inventory](t-cmdb.md)
-  - New PgSQL Service
-  - PgSQL Template
-  - Scaling Cluster
-  - Ansible Basics
-  - Migration
-  - Common Failures
+- [Deploy](d-deploy.md)
+  - [Prepare](d-prepare.md)
+  - [Sandbox](d-sandbox.md)
+  - [Monitor Deploy](d-monly.md)
+  - [PGSQL Deploy](d-pgsql.md)
+  - [REDIS Deploy](d-redis.md)
+  - [MatrixDB Deploy](d-matrixdb.md)
+
+- [Playbook](p-playbook.md)
+  - [Playbook: INFRA](p-infra.md)
+  - [Playbook: NODES](p-nodes.md)
+  - [Playbook: PGSQL](p-pgsql.md)
+  - [Playbook: REDIS](p-redis.md)
+
+- [Config](v-config.md)
+  - [Config: INFRA](v-infra.md)
+  - [Config: NODES](v-nodes.md)
+  - [Config: PGSQL](v-pgsql.md)
+  - [Config: REDIS](v-redis.md)
+  - [Customize: PGSQL](v-pgsql-customize.md)
 
 - Monitoring
-  - Architecture
-  - Organization
-  - Identity & Labels
-  - Source: Metrics
-  - Source: Logging
-  - Source: Catalog
-  - Grafana
-  - Prometheus
-  - AlertManager
-  - PGSQL:Overview
-  - PGSQL:Cluster
-  - PGSQL:Instance
-  - PGSQL:Object
-  - PGCAT:Catalog
-  - PGLOG:Analysis
+  - [Dashboards](m-dashboard.md)
+  - [Service Discovery](m-discovery.md)
+  - [Metrics](m-metric.md)
+  - [Alerting](r-alert.md)
 
-- Provisioning
-  - Overview
-  - Prepare
-  - Configure
-  - Customize
-  - Playbook:Infra
-  - Playbook:PgSQL
-  - Playbook:PgSQL Remove
-  - Playbook:PgSQL CreateDB
-  - Playbook:PgSQL CreateUser
-  - Example Config
+- Application
+
+  - [Pigsty Applications](t-application.md)
+  - [Docker Applications](t-docker.md)
+  - [Upgrade Grafana DB](t-grafana-upgrade.md)
+  - [Jupyter Lab](t-jupyter.md)
+
+- Tutorial
+  - [Backup & Restore](t-backup.md)
+  - [Offline Installation](t-offline.md)
+  - [CMDB Inventory](t-cmdb.md)
+  - [PGSQL Migration](t-migration.md)
 
 - Reference
-  - Config Entries
-  - Metrics List
-  - Alerting Rules
-  - FHS
+  - [SOP: Standard Operation Procedure](r-sop.md)
+  - [File Structure Hierarchy](r-fhs.md)
+  - [PGSQL HA Cases](r-ha.md)
+  - [Common Failures](r-failure.md)
 
-- [Contribution](contribution.md)
-- [Community](zh-cn/community.md)
+- [Community](community.md)
 - [Roadmap](roadmap.md)
-- [Changelog](devlog.md)
+- [DEVLOG](devlog.md)
+- [中文文档](zh-cn/README.md)

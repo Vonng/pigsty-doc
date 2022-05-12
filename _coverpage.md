@@ -1,13 +1,18 @@
 ![logo](_media/icon.svg)
 
-# Pigsty <small>1.0.0</small>
+# Pigsty <small>1.5.0-beta</small>
 
-> <b>Battery-IncludedOpen-Source PostgreSQL Distribution</b>
+> <b>Battery-Included Open-Source Database Distribution</b>
 
-- Monitoring Solution with Ultimate observability
-- Provisioning Solution to create HA PostgreSQL Clusters
-- Versatile Sandbox that can runs on your laptop with one-click
-- Open Source under Apache License 2.0
+- Battery-Included PostgreSQL Distribution
+
+- Monitoring & Provisioning Solutions
+
+- Handy developer toolbox for Database Admin 
+
+- Thrifty alternatives to cloud RDS!
+
+
 
 [Documentation](#pigsty)
 [中文文档](zh-cn/)

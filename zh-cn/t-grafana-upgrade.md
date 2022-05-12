@@ -73,7 +73,7 @@ bin/createpg pg-grafana    # 初始化pg-grafana集群
 ./pgsql.yml -l pg-grafana  # 实际执行的等效Ansible剧本命令 
 ```
 
-定义在`pg_users`与`pg_databases`中的业务用户与业务数据库会在集群初始化时自动创建，因此使用该配置时，集群创建完毕后，（在没有DNS支持的情况下）您可以使用以下连接串[访问](c-access.md)数据库（任一即可）：
+定义在 [`pg_users`](v-pgsql.md#pg_users) 与 [`pg_databases`](v-pgsql.md#pg_databases) 中的业务用户与业务数据库会在集群初始化时自动创建，因此使用该配置时，集群创建完毕后，（在没有DNS支持的情况下）您可以使用以下连接串[访问](c-service.md#接入)数据库（任一即可）：
 
 ```bash
 postgres://dbuser_grafana:DBUser.Grafana@10.10.10.11:5432/grafana # 主库直连
@@ -85,7 +85,7 @@ postgres://dbuser_grafana:DBUser.Grafana@10.10.10.12:5436/grafana # 直连defaul
 postgres://dbuser_grafana:DBUser.Grafana@10.10.10.12:5433/grafana # 连接串读写服务
 ```
 
-因为默认情况下Pigsty安装在**单个管理节点**上，接下来的步骤我们会在已有的`pg-meta`数据库集群上创建Grafana所需的用户与数据库，而并非使用这里创建的`pg-grafana`集群。
+因为默认情况下Pigsty安装在**单个元节点**上，接下来的步骤我们会在已有的`pg-meta`数据库集群上创建Grafana所需的用户与数据库，而并非使用这里创建的`pg-grafana`集群。
 
 
 
@@ -160,7 +160,7 @@ bin/createdb pg-meta grafana # 在`pg-meta`集群上创建`grafana`数据库
 
 ### 检查连接串可达性
 
-您可以使用不同的[服务](c-service.md)或[接入](c-access.md)方式访问数据库，例如：
+您可以使用不同的[服务](c-service.md)或[接入](c-service.md#接入)方式访问数据库，例如：
 
 ```bash
 postgres://dbuser_grafana:DBUser.Grafana@meta:5432/grafana # 直连
@@ -288,14 +288,14 @@ export NGINX_UPSTREAM_HAPROXY=h.pigsty
 
 ## 一步到位更新Grafana
 
-您可以直接通过修改Pigsty配置文件，更改Grafana使用的后端数据源，一步到位的完成切换Grafana后端数据库的工作。编辑`pigsty.yml`中[`grafana_database`](v-meta.md#grafana_database)与[`grafana_pgurl`](v-meta.md#grafana_pgurl)参数，将其修改为：
+您可以直接通过修改Pigsty配置文件，更改Grafana使用的后端数据源，一步到位的完成切换Grafana后端数据库的工作。编辑`pigsty.yml`中[`grafana_database`](v-infra.md#grafana_database)与[`grafana_pgurl`](v-infra.md#grafana_pgurl)参数，将其修改为：
 
 ```yaml
 grafana_database: postgres
 grafana_pgurl: postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana
 ```
 
-然后重新执行 [`infral.yml`](p-infra)中的`grafana`任务，即可完成Grafana升级
+然后重新执行 [`infral.yml`](p-meta)中的`grafana`任务，即可完成Grafana升级
 
 ```bash
 ./infra.yml -t grafana

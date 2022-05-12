@@ -1,4 +1,6 @@
-**指标（Metric）** 是Pigsty监控系统的核心概念。
+# 监控指标
+
+>  **指标（Metric）** 是Pigsty监控系统的核心概念。
 
 
 
@@ -57,7 +59,7 @@ CREATE TABLE series (
     dimension JSONB DEFAULT '{}'                -- 时间序列带有的维度信息，采用键值对的形式表示
 );
 
--- 时许数据表，保存最终的采样数据点。每个采样点都属于一个时间序列
+-- 时序数据表，保存最终的采样数据点。每个采样点都属于一个时间序列
 CREATE TABLE series_data (
     series_id BIGINT REFERENCES series(id),     -- 时间序列标识
     ts        TIMESTAMP,                        -- 采样点时间戳
@@ -94,7 +96,7 @@ INSERT INTO series_data VALUES                 -- 每个时间序列底层的采
 
 Pigsty的监控数据主要有四种主要来源： **数据库**，**连接池**，**操作系统**，**负载均衡器**。通过相应的exporter对外暴露。
 
-![](/img/concept/metrics_source.png)
+![](../_media/metrics_source.png)
 
 完整来源包括：
 
@@ -117,18 +119,16 @@ Pigsty的监控数据主要有四种主要来源： **数据库**，**连接池*
 
 那么，Pigsty总共包含了多少指标呢？ 这里是一副各个指标来源占比的饼图。我们可以看到，右侧蓝绿黄对应的部分是数据库及数据库相关组件所暴露的指标，而左下方红橙色部分则对应着机器节点相关指标。左上方紫色部分则是负载均衡器的相关指标。
 
-![](/img/concept/metrics_ratio.png)
+![](../_media/metrics_ratio.png)
 
 数据库指标中，与postgres本身有关的原始指标约230个，与中间件有关的原始指标约50个，基于这些原始指标，Pigsty又通过层次聚合与预计算，精心设计出约350个与DB相关的衍生指标。
 
-因此，对于每个数据库集群来说，单纯针对数据库及其附件的监控指标就有621个。而机器原始指标281个，衍生指标83个一共364个。加上负载均衡器的170个指标，我们总共有接近1200类指标。
+因此，对于每个数据库集群来说，单纯针对数据库及其附件的监控指标就有621个。而机器原始指标281个，衍生指标83个一共364个。加上负载均衡器的170个指标，我Pigsty共有接近1200类指标。
 
 注意，这里我们必须辨析一下指标（metric）与时间序列（ Time-series）的区别。
 这里我们使用的量词是 类 而不是个 。 因为一个指标可能对应多个时间序列。例如一个数据库中有20张表，那么 `pg_table_index_scan` 这样的指标就会对应有20个对应的时间序列。
 
-![](/img/concept/metrics_compare.png)
-
-截止至2021年，Pigsty的指标覆盖率在所有作者已知的开源/商业监控系统中一骑绝尘，详情请参考[**横向对比**])。
+截止至2021年，Pigsty的指标覆盖率在所有作者已知的开源/商业监控系统中一骑绝尘，详情请参考**横向对比**。
 
 
 
@@ -138,7 +138,17 @@ Pigsty还会基于现有指标进行加工处理，产出 **[衍生指标]()（D
 
 例如指标可以按照不同的层次进行聚合
 
-![](/img/concept/label-naming.png)
+
+| 实体         | 标识名    | 标识样例                             | 标签                              |
+| ------------ | --------- | ------------------------------------ |---------------------------------|
+| Environment  | **`job`** | `pgsql`, `redis`, `staging`          | `{job}`                         |
+| Shard        |           | `pg-test-shard\d+`                   | `{job, cls*}`                   |
+| **Cluster**  | **`cls`** | `pg-meta`, `pg-test`                 | `{job, cls}`                    |
+| Service      |           | `pg-meta-primary`, `pg-test-replica` | `{job, cls}`                    |
+| **Instance** | **`ins`** | `pg-meta-1`, `pg-test-1`             | `{job, cls, ins, ip, instance}` |
+| Database     | **`datname`** | `test`                               | `{..., datname}`                |
+| Object       |           | `public.pgbench_accounts`            | `{..., datname, <object>}`      |
+
 
 从原始监控时间序列数据，到最终的成品图表，中间还有着若干道加工工序。
 
@@ -148,7 +158,7 @@ Pigsty还会基于现有指标进行加工处理，产出 **[衍生指标]()（D
 
 而下面的图表，则是整个集群内每个实例的QPS横向对比，因此在这里，我们使用预定义的规则，首先对原始事务计数器求导获取8个DB层面的TPS指标，然后将8个DB层次的时间序列聚合为4个实例层次的TPS指标，最后再将这四个实例级别的TPS指标聚合为集群层次的TPS指标。
 
-![](/img/concept/derived-metrics.png)
+![](../_media/LABELS.svg)
 
 Pigsty共定义了360类衍生聚合指标，后续还会不断增加。衍生指标定义规则详见 [**参考-衍生指标**]()
 
@@ -158,13 +168,13 @@ Pigsty共定义了360类衍生聚合指标，后续还会不断增加。衍生�
 
 **目录（Catalog）** 是一种特殊的指标
 
-![](/img/ui/pg-table-catalog.jpg)
-
 Catalog与Metrics比较相似但又不完全相同，边界比较模糊。最简单的例子，一个表的页面数量和元组数量，应该算Catalog还是算Metrics？
 
 跳过这种概念游戏，实践上Catalog和Metrics主要的区别是，Catalog里的信息通常是不怎么变化的，比如表的定义之类的，如果也像Metrics这样比如几秒抓一次，显然是一种浪费。所以我们会将这一类偏静态的信息划归Catalog。
 
 Catalog主要由定时任务（例如巡检）负责抓取，而不由Prometheus采集。一些特别重要的Catalog信息，例如`pg_class`中的一些信息，也会转换为指标被Prometheus所采集。
+
+Pigsty提供了 PGCAT 系列监控面板，可以直接从目标数据库的Catalog中采集并呈现信息。
 
 
 
@@ -172,4 +182,4 @@ Catalog主要由定时任务（例如巡检）负责抓取，而不由Prometheus
 
 ## 小结
 
-了解了Pigsty指标后，不妨了解一下Pigsty的 [**告警系统**](m-alert.md) 是如何将这些指标数据用于实际生产用途的。
+了解了Pigsty指标后，不妨了解一下Pigsty的 [告警系统](r-alert.md) 是如何将这些指标数据用于实际生产用途的。

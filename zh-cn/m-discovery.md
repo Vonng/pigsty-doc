@@ -2,7 +2,7 @@
 
 服务发现有多种用途，本文介绍Pigsty监控系统Prometheus用于发现监控对象的机制。
 
-服务发现的基础是**身份标识**，关于身份标识详情，请参阅[**实体**](c-entity.md)一节
+服务发现的基础是**身份标识**，关于身份标识详情，请参阅[**实体**](c-pgsql.md#实体模型)一节
 
 有了身份标识后，还需要在监控系统中将**监控目标**与身份标识相关联，Pigsty提供了两种实现方式：
 
@@ -17,7 +17,7 @@
 
 所有的实例都具有**身份（Identity）**，**身份标识**（Identifier）是与实例关联的**元数据**，用于标识实例。
 
-[**身份参数**](../../../config/7-pg-provision/#身份参数)是任何集群与实例都必须定义的唯一标识符。
+[**身份参数**](v-config.md#身份参数)是任何集群与实例都必须定义的唯一标识符。
 
 | 名称 |     变量      | 缩写   | 类型             | 说明                                          |
 | :--: | :-----------: | ------ | ---------------- | --------------------------------------------- |
@@ -27,7 +27,7 @@
 | 实例 | `pg_instance` | `ins`  | 衍生身份参数     | `${pg_cluster}-${pg_seq}`                     |
 | 服务 | `pg_service`  | `svc`  | 衍生身份参数     | `${pg_cluster}-${pg_role}`                    |
 
-![](../_media/identifier.svg)
+![](../_media/LABELS.svg)
 
 
 
@@ -39,9 +39,9 @@
 
 身份赋予可以有多种形式，最朴素的身份关联方式就是**运维人员的记忆**：DBA在脑海中记住了IP地址为`10.2.3.4`上的数据库实例，是用于支付的实例，而另一台上的数据库实例则用于用户管理。更好的管理方式是通过**配置文件**，或者采用**服务发现**的方式来管理集群成员的身份。
 
-Pigsty同时提供这两种身份管理的方式：基于[**Consul**](../identity/#consul服务发现)的服务发现，与基于[**配置文件**](../identity/#静态文件服务发现)的服务发现
+Pigsty同时提供这两种身份管理的方式：基于[**Consul**](#consul服务发现)的服务发现，与基于[**配置文件**](#静态文件服务发现)的服务发现
 
-参数 [`prometheus_sd_method (consul|static)`](.) 控制这一行为：
+参数 [`prometheus_sd_method`](v-infra.md#prometheus_sd_method) 控制这一行为：
 
 - `consul`：基于Consul进行服务发现，默认配置
 - `static`：基于本地配置文件进行服务发现
@@ -65,15 +65,15 @@ Pigsty建议使用`static`服务发现，此方式更为简洁，且监控系统
   metrics_path: /metrics
   file_sd_configs:
     - refresh_interval: 10s
-      files: [ /etc/pigsty/targets/pgsql/*.yml ]
+      files: [ /etc/prometheus/targets/pgsql/*.yml ]
 ```
 
-在`/etc/pigsty/targets`目录下存放有由Pigsty生成的监控对象定义文件，`pgsql`是默认环境的名称。
+在`/etc/prometheus/targets`目录下存放有由Pigsty生成的监控对象定义文件，`pgsql`是默认环境的名称。
 
 **每一个实例由一个单独的文件定义**，形如：
 
 ```
-/etc/pigsty/targets/pgsql
+/etc/prometheus/targets/pgsql
                      ^-----pg-meta-1.yml
                      ^-----pg-test-1.yml
                      ^-----pg-test-2.yml
@@ -101,7 +101,21 @@ Pigsty建议使用`static`服务发现，此方式更为简洁，且监控系统
 ```
 
 
+### 默认采集对象
+每一个被管理的Postgres实例都包括有几个采集端口：
+* 采集机器节点指标的 [Node Exporter](https://github.com/prometheus/node_exporter)
+* 采集数据库指标的 [PG Exporter](https://github.com/Vonng/pg_exporter)
+* 采集连接池指标的 [PGBouncer Exporter](https://github.com/Vonng/pg_exporter) （与PG Exporter使用同一二进制）
+* 采集高可用组件的 [Patroni](https://patroni.readthedocs.io/en/latest/releases.html?highlight=%2Fmetrics#version-2-1-3)
+* 采集负载均衡器指标的 [HAProxy](https://github.com/Vonng/haproxy-rpm) （内建支持，无需单独部署）
 
+![](../_media/playbook/nodes.svg)
+
+这些采集端口会被[元节点](c-nodes.md#元节点)上的Prometheus所采集。
+此外，可选的Promtail用于收集Postgres，Patroni，Pgbouncer日志，是可选的额外安装组件。
+
+默认情况下，所有监控端点都会被注册至Consul，但Prometheus默认会通过静态文件服务发现的方式管理这些任务。
+用户可以通过配置 [`prometheus_sd_method`](v-infra.md#prometheus_sd_method) 为 `consul` 来使用Consul服务发现，动态管理实例。
 
 
 

@@ -1,213 +1,122 @@
+# Pigsty 快速上手
 
-## 太长不看
+> Pigsty的安装分为三个步骤：[部署准备](d-prepare.md)，[修改配置](v-config.md)，[执行剧本](p-playbook)
 
-![](../_media/how-zh.svg)
+----------------
 
-准备好新装机器（Linux x86_64 CentOS 7.8.2003）一台，配置ssh本机访问，以root或sudo用户执行以下命令。
+![](../_media/HOW_ZH.svg)
+
+Pigsty有两种典型使用模式：[单机安装](#单机安装) 与 [集群管理](#集群管理)。
+
+* **单机**：在单个节点上安装Pigsty，将其作为开箱即用的Postgres数据库使用（开发测试）
+* **集群**：在单机安装的基础上，部署、监控、管理其他节点与多种不同种类的数据库（运维管理）
+
+
+---------------------
+
+## 单机安装
+
+在一台节点上安装Pigsty时，Pigsty会在该节点上部署完整的**基础设施运行时** 与 一个单节点PostgreSQL**数据库集群**。对于个人用户、简单场景、小微企业来说，您可以直接开箱使用此数据库。
+
+准备好**新装**机器（Linux x86_64 CentOS 7.8.2003）一台，配置[管理用户](d-prepare.md#管理用户置备)ssh本机sudo访问，然后[下载Pigsty](d-prepare.md#软件下载)。
 
 ```bash
-# 离线下载（没有Git时可以使用此curl代码下载）
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pigsty.tgz -o ~/pigsty.tgz  
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pkg.tgz    -o /tmp/pkg.tgz
-
-# 常规安装
-git clone https://github.com/Vonng/pigsty && cd pigsty
-./configure
-make install
+bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  # 下载最新pigsty源代码
+cd ~/pigsty; ./configure                               # 根据当前环境生成配置
+./infra.yml                                            # 在当前节点上完成安装
 ```
 
-安装完毕后，可通过 http://g.pigsty 或管理节点3000端口访问Pigsty图形界面。默认管理员：`admin`: `pigsty`。
+> 如果您有可用的Macbook/PC/笔记本或云厂商账号，可使用[沙箱部署](d-sandbox.md)在本机或云端自动创建虚拟机。
 
+执行完毕后，您已经在**当前节点**完成了Pigsty的安装，上面带有完整的基础设施与一个开箱即用的PostgreSQL数据库实例，当前节点的5432对外提供数据库[服务](c-service.md#服务)，80端口对外提供所有WebUI类服务。
 
-> 如果您没有可用机器节点，但有可用的Macbook/PC/笔记本，可使用[沙箱环境](s-sandbox.md)在本机自动创建虚拟机。
+80端口为所有Web图形界面服务的访问端点。尽管可以绕过Nginx直接使用端口访问各项服务，例如3000端口的Grafana，但强烈建议用户通过在本机[配置静态DNS](d-sandbox.md#DNS配置)的方式，使用域名访问各项Web子服务。
+
+> 访问 http://g.pigsty 或 `http://<primary_ip>:3000` 即可浏览 Pigsty监控系统主页 (用户名: admin, 密码: pigsty)
+
+![](../_media/ARCH.gif)
 
 
 ----------------
 
+## 集群管理
 
-## 准备
 
-安装Pigsty需要[准备](t-prepare)一个机器节点：规格至少为1核2GB，采用Linux内核，安装CentOS 7发行版，处理器为x86_64架构。并需要一个可以SSH登陆并带有sudo权限的[管理用户](t-prepare.md#管理用户置备)。
-该机器将作为 **[管理节点](c-arch.md#管理节点)(meta node)** ，发出控制命令，采集监控数据，运行定时任务。
-
-**Pigsty默认以单机模式运行在管理节点上**，您可以额外准备任意数量的普通节点，用于部署额外的数据库实例与集群。例如在[Pigsty沙箱](s-sandbox.md) 有一种4节点版本，会使用额外的三个节点部署一套 1主2从 的测试集群 `pg-test`。
-
-在大规模生产环境中，通常会部署3个或更多的管理节点，用于提供冗余。
-
-----------------
-
-## 下载
-
-**源码包 [`pigsty.tgz`](t-prepare.md#pigsty源代码)**
-
-Pigsty的源码包`pigsty.tgz`（约500 KB）是**必选项**，可以通过`curl`、`git`从Github下载。
+Pigsty还可以用作大规模生产环境的集群/数据库管理。您可以从单机安装Pigsty的节点（将作为集群的[元节点](c-nodes.md#元节点)，或称作**元节点/Meta**）上发起控制，将更多的 [机器节点](p-nodes.md) 纳入Pigsty的管理与监控中。
+更重要的是，Pigsty还可以在这些节点上部署并管理各式各样的数据库集群与应用：创建高可用的[PostgreSQL数据库集群](d-pgsql.md)；创建不同类型的[Redis集簇](d-redis.md)；部署 [Greenplum/MatrixDB](d-matrixdb.md) 数据仓库，并获取关于节点、数据库与应用的实时洞察。
 
 ```bash
-git clone https://github.com/Vonng/pigsty && cd pigsty
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pigsty.tgz -o ~/pigsty.tgz
-```
-
-建议解压于管理用户的家目录中，即：`PIGSTY_HOME=~/pigsty`。
-
-如果您希望使用最新的功能，请使用Git方式拉取代码，如果您希望保持环境稳定，使用`curl`下载固定版本即可。
-
-
-**软件包 [`pkg.tgz`](t-prepare.md#pigsty离线软件包)**
-
-Pigsty的离线软件包`pkg.tgz`（约1 GB）是**可选项**，可以通过`curl` 从Github下载。
-
-```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pkg.tgz    -o /tmp/pkg.tgz
-```
-
-放置至目标机器的`/tmp/pkg.tgz`路径下的离线软件包会在配置过程中被自动识别并使用。
-
-
-**其他下载渠道**
-
-如果没有互联网/Github访问，也可以从其他位置下载，例如百度云盘，详情参考[FAQ](s-faq.md)。
-
-> 无Github访问下载：https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw (提取码: `8su9`）
-
-----------------
-
-## 配置
-
-解压并进入 pigsty 源码目录： `tar -xf pigsty.tgz && cd pigsty`，执行以下命令即可开始[配置](v-config)：
-
-```bash
-./configure
-```
-
-执行`configure`会检查下列事项，小问题会自动尝试修复，否则提示报错退出。
-
-```bash
-check_kernel     # kernel        = Linux
-check_machine    # machine       = x86_64
-check_release    # release       = CentOS 7.x
-check_sudo       # current_user  = NOPASSWD sudo
-check_ssh        # current_user  = NOPASSWD ssh
-check_ipaddr     # primary_ip (arg|probe|input)                    (INTERACTIVE: ask for ip)
-check_admin      # check current_user@primary_ip nopass ssh sudo
-check_mode       # check machine spec to determine node mode (tiny|oltp|olap|crit)
-check_config     # generate config according to primary_ip and mode
-check_pkg        # check offline installation package exists       (INTERACTIVE: ask for download)
-check_repo       # create repo from pkg.tgz if exists
-check_repo_file  # create local file repo file if repo exists
-check_utils      # check ansible sshpass and other utils installed
-check_bin        # check special bin files in pigsty/bin (loki,exporter) (require utils installed)
-```
-
-直接运行 `./configure` 将启动交互式命令行向导，提示用户回答以下三个问题：
-
-
-**IP地址**
-
-当检测到当前机器上有多块网卡与多个IP地址时，配置向导会提示您输入**主要**使用的IP地址，
-即您用于从内部网络访问该节点时使用的IP地址。注意请不要使用公网IP地址。
-
-**下载软件包**
-
-当节点的`/tmp/pkg.tgz`路径下未找到离线软件包时，配置向导会询问是否从Github下载。 
-选择`Y`即会开始下载，选择`N`则会跳过。如果您的节点有良好的互联网访问与合适的代理配置，或者需要自行制作离线软件包，可以选择`N`。
-
-**配置模板**
-
-使用什么样的配置文件模板。
-
-配置向导会根据当前机器环境**自动选择配置模板**，但用户可以通过`-m <mode>`手工指定使用配置模板，例如：
-
-* [`demo4`]  项目默认配置文件，4节点沙箱
-* [`demo`]   单节点沙箱，若检测到当前为沙箱虚拟机，会使用此配置
-* [`tiny`]   单节点部署，若使用普通节点（微型: cpu < 8）部署，会使用此配置
-* [`oltp`]   生产单节点部署，若使用普通节点（高配：cpu >= 8）部署，会使用此配置
-* 更多配置模板，请参考 [Configuration Template](https://github.com/Vonng/pigsty/tree/master/files/conf)
-
-**配置过程的标准输出**
-
-```bash
-vagrant@meta:~/pigsty 
-$ ./configure
-configure pigsty v1.0.0 begin
-[ OK ] kernel = Linux
-[ OK ] machine = x86_64
-[ OK ] release = 7.8.2003 , perfect
-[ OK ] sudo = vagrant ok
-[ OK ] ssh = vagrant@127.0.0.1 ok
-[WARN] Multiple IP address candidates found:
-    (1) 10.0.2.15	    inet 10.0.2.15/24 brd 10.0.2.255 scope global noprefixroute dynamic eth0
-    (2) 10.10.10.10	    inet 10.10.10.10/24 brd 10.10.10.255 scope global noprefixroute eth1
-    (3) 10.10.10.2	    inet 10.10.10.2/8 scope global eth1
-[ OK ] primary_ip = 10.10.10.10 (from demo)
-[ OK ] admin = vagrant@10.10.10.10 ok
-[ OK ] mode = pub4 (manually set)
-[ OK ] config = pub4@10.10.10.10
-[ OK ] cache = /tmp/pkg.tgz exists
-[ OK ] repo = /www/pigsty ok
-[ OK ] repo file = /etc/yum.repos.d/pigsty-local.repo
-[ OK ] utils = install from local file repo
-[ OK ] ansible = ansible 2.9.23
-configure pigsty done. Use 'make install' to proceed
+# 在四节点本地沙箱/云端演示环境中，可以使用以下命令在其他三台节点上部署数据库集群
+./nodes.yml  -l pg-test      # 初始化集群pg-test包含的三台机器节点（配置节点+纳入监控）
+./pgsql.yml  -l pg-test      # 初始化高可用PGSQL数据库集群pg-test
+./redis.yml  -l redis-test   # 初始化Redis集群 redis-test
+./pigsty-matrixdb.yml -l mx-*  # 初始化MatrixDB集群mx-mdw,mx-sdw
 ```
 
 
 
 ----------------
 
-## 安装
+## 沙箱环境
 
-`make install`会调用Ansible执行[`infra.yml`](p-infra)剧本，在`meta`分组上完成安装。
-
-```bash
-make install
-```
-
-在沙箱环境2核4GB虚拟机中，完整安装耗时约10分钟。
-
-> 在`./configure`的过程中，Ansible已经通过离线软件包或可用yum源安装完毕。
+Pigsty设计了一个标准的，4节点的演示教学环境,称为**沙箱环境**，您可以参考[教程](d-sandbox.md)，使用Vagrant或Terraform快速在本机或公有云上拉起所需的四台虚拟机资源，并进行部署测试。跑通流程后稍作修改，便可用于生产环境[部署](d-deploy.md)。
 
 
-### 访问图形用户界面
+[![](../_media/SANDBOX.gif)](d-sandbox.md)
 
-安装完成后，您可以通过[用户界面](s-interface.md)访问Pigsty相关服务。
-
-> 访问 `http://<node_ip>:3000` 即可浏览 Pigsty监控系统主页 (用户名: `admin`, 密码: `pigsty`)
-
-
-### 部署额外的数据库集群（可选）
-
-在4节点沙箱中，您可以执行[`pgsql.yml`](p-pgsql)剧本以完成`pg-test`集群的部署：
+以默认的[沙箱环境](d-sandbox.md)为例，假设您已经在`10.10.10.10`元节点上完成单机Pigsty的安装：
 
 ```bash
-./pgsql.yml -l pg-test
+./infra.yml # 在沙箱环境的 10.10.10.10 meta 机器上，完成完整的单机Pigsty安装
 ```
 
-该剧本执行完后，即可在监控系统中浏览集群详情。[Check Demo](http://demo.pigsty.cc/d/pgsql-cluster/pgsql-cluster?var-cls=pg-test)
+#### 主机初始化
 
-
-### 部署额外的日志收集组件（可选）
-
-Pigsty自带了基于Loki与Promtail的实时日志收集解决方案，但默认不会启用，需要您手工启用。
+现希望将三个节点：`10.10.10.11`, `10.10.10.12`, `10.10.10.13` 纳入管理，则可使用 [`nodes.yml`](p-nodes.md#nodes) 剧本：
 
 ```bash
-./infra-loki.yml         # 在管理节点上安装loki(日志服务器)
-./pgsql-promtail.yml     # 在数据库节点上安装promtail (日志Agent)
+./nodes.yml -l pg-test      # 初始化集群pg-test包含的三台机器节点（配置节点+纳入监控）
 ```
 
-详见[部署日志收集服务](t-logging.md)
+执行完毕后，这三台节点已经带有DCS服务，主机监控与日志收集。可以用于后续的数据库集群部署。详情请参考节点 [配置](v-nodes.md) 与 [剧本](p-nodes.md)。
 
 
-----------------
+#### PostgreSQL部署
 
-## 接下来做什么？
+使用 [`pgsql.yml`](p-pgsql.md#pgsql) 剧本，可以在这三台节点上初始化一主两从的高可用PostgreSQL数据库集群 `pg-test`。
 
-您可以先浏览Pigsty监控系统的官方[演示](s-demo.md)站点：[http://demo.pigsty.cc](http://demo.pigsty.cc)，获取大致的印象。
+```bash
+./pgsql.yml  -l pg-test      # 初始化高可用PGSQL数据库集群pg-test
+```
 
-> Pigsty演示中包含有两个有趣的数据应用：WHO新冠疫情数据大盘：[`covid`](http://demo.pigsty.cc/d/covid-overview)，与全球地表气象站历史数据查询：[`isd`](http://demo.pigsty.cc/d/isd-overview)
+部署完成后，即可从[监控系统](http://demo.pigsty.cc/d/pgsql-cluster/pgsql-cluster?var-cls=pg-test) 中看到新创建的PostgreSQL集群。
 
-您可以尝试在本机运行Pigsty，例如通过[沙箱环境](s-sandbox.md)，或直接[准备](t-prepare.md)虚拟机/物理机进行标准[部署](t-deploy.md)。
+详情请参考：PgSQL数据库集群 [配置](v-pgsql.md)、[定制](v-pgsql-customize.md) 与 [剧本](p-pgsql.md)。
 
-如果您希望了解Pigsty的设计与概念，可以参阅以下主题：[架构](c-arch.md)、[实体](c-entity.md)、[配置](c-config.md)、[服务](c-service.md)、[数据库](c-database.md)、[用户](c-user.md)、[权限](c-privilege.md)、[认证](c-auth.md)、[接入](c-access.md)
 
-您可以通过**教程**了解部署、管理、访问 数据库集群、实例、用户、DB、服务的方式。 教程[【使用Postgres作为Grafana后端数据库】](t-grafana-upgrade.md)将会通过一个完整的例子，介绍如何使用Pigsty提供的管控原语创建新数据库集群、在已有集群中创建新的业务数据库与用户，以及使用该数据库的具体方式。
+### Redis部署
+
+除了标准的PostgreSQL集群，您还可以部署各种其他类型的集群，甚至其他类型的数据库。
+
+例如在沙箱中部署[Redis](d-redis.md)，可以使用Redis数据库集群 [配置](v-redis.md) 与 [剧本](p-redis.md)。
+
+```bash   
+./configure -m redis
+./nodes.yml    # 配置所有用于安装Redis的节点
+./redis.yml    # 在所有节点上按照配置声明Redis
+```
+
+#### MatrixDB部署
+
+例如在沙箱中部署开源数据仓库[MatrixDB](d-matrixdb.md)（Greenplum7），可以使用以下命令：
+
+```bash
+./configure -m mxdb  # 使用沙箱环境MatrixDB配置文件模板
+./download matrix    # 下载MatrixDB软件包并构建本地源
+./infra.yml -e no_cmdb=true  # 如果您准备在meta节点上部署 MatrixDB Master，添加no_cmdb选项，否则正常安装即可。   
+./nodes.yml                  # 配置所有用于安装MatrixDB的节点
+./pigsty-matrixdb.yml          # 在上述节点上安装MatrixDB
+```
+
+
 
