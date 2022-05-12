@@ -1,6 +1,4 @@
-# Pigsty
-
-## Pigsty v1.5.0 Documentation
+# Pigsty v1.5.0 Docs
 
 **Battery-Included Open-Source PostgreSQL Distribution**
 
@@ -24,54 +22,7 @@ Pigsty is a [secure](s-feature.md#Safty-and-Thrifty) & [thrifty](s-feature.md#Sa
 
 Check [FEATURES](s-feature.md) for more detail.
 
-
-<details><summary>Distribution</summary>
-
-[![Distribution](docs/_media/DISTRIBUTION.gif)](docs/c-infra.md#Overview)
-
-</details>
-
-<details><summary>Observability</summary>
-
-[![Observability](docs/_media/overview-monitor.jpg)](http://demo.pigsty.cc)
-
-</details>
-
-<details><summary>High Availability</summary>
-
-[![High Availability](docs/_media/HA-PGSQL.svg)](docs/c-pgsql.md#High-Availability)
-
-</details>
-
-<details><summary>Architecture</summary>
-
-[![Architecture](docs/_media/ARCH.gif)](docs/c-arch.md)
-
-</details>
-
-<details><summary>Sandbox</summary>
-
-[![Sandbox](docs/_media/SANDBOX.gif)](docs/d-sandbox.md)
-
-</details>
-
-<details><summary>Provisioning</summary>
-
-[![Provisioning](docs/_media/PROVISION.gif)](docs/d-deploy.md)
-
-</details>
-
-<details><summary>User Interface</summary>
-
-[![User Interface](docs/_media/interface.jpg)](docs/s-install.md)
-
-</details>
-
-<details><summary>Application</summary>
-
-[![Application](docs/_media/overview-covid.jpg)](docs/t-application.md)
-
-</details>
+![](_media/intro.png)
 
 
 
